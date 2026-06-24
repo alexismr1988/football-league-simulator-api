@@ -113,6 +113,11 @@ POST /leagues/{leagueId}/matchdays/{matchdayNumber}/simulate
 GET /leagues/{leagueId}/standings
 ```
 
+## Postman collection
+
+A Postman collection containing the main API requests is available in the repository.
+
+[Open the Postman collection](postman/Football-League-Simulator.postman_collection.json)
 
 ## Future improvements
 Security, tests, AI-generated match reports, frontend.

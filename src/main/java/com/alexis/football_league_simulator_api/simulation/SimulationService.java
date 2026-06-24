@@ -19,6 +19,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Simulates football matches using automatic lineups, player ratings,
+ * tactical formations, coach styles and random goal probabilities.
+ */
 @Service
 @RequiredArgsConstructor
 public class SimulationService {
@@ -38,6 +42,7 @@ public class SimulationService {
         homeTeam.setLineup(lineupGenerator.generateAutoLineup(homeTeam));
         awayTeam.setLineup(lineupGenerator.generateAutoLineup(awayTeam));
 
+        // Base probabilities already include a small home advantage.
         double homeGoalProbability = 0.18;  // Probabilidad de gol por ocasión
         double awayGoalProbability = 0.15;   // Probabilidad de gol por ocasión
         int homeChances = 12;
@@ -47,7 +52,6 @@ public class SimulationService {
         String homeFormation = homeTeam.getLineup().countLines();
         String awayFormation = awayTeam.getLineup().countLines();
 
-        //Calcular número de posiciones de cada alineación para aplicar probabilidades
         if (homeTeam.getLineup().getDefenders() < 4) awayGoalProbability *= 1.15;
         if (homeTeam.getLineup().getDefenders() > 4) awayGoalProbability *= 0.85;
         if (homeTeam.getLineup().getMidfielders() == 3) homeChances -= 2;
@@ -76,7 +80,7 @@ public class SimulationService {
         int awayMidfieldersAverage = awayTeam.getLineup().averageByPositions(Position.DEFENSIVE_MIDFIELDER, Position.MIDFIELDER, Position.ATTACKING_MIDFIELDER);
         int awayStrikersAverage = awayTeam.getLineup().averageByPositions(Position.STRIKER, Position.SECOND_STRIKER);
 
-        // Reducir/Aumentar parámetros en base a la media
+        // Adjust chances and scoring probabilities according to each positional line.
         double homeGoalReduction = (homeGoalkeeperAverage / 100.0) * 0.05 + 0.03;
         int awayChancePenalty = homeDefendersAverage / 20;
         int homeChanceIncrease = homeMidfieldersAverage / 20;
@@ -87,7 +91,8 @@ public class SimulationService {
         int awayChanceIncrease = awayMidfieldersAverage / 20;
         double awayExtraGoalPercentage = (awayStrikersAverage / 100.0) * 0.09 + 0.01;
 
-        awayGoalProbability *= 1 - homeGoalReduction;  // Portero local reduce probabilidad de gol visitante
+        // Each chance is evaluated independently using the final scoring probability.
+        awayGoalProbability *= 1 - homeGoalReduction;
         awayChances -= awayChancePenalty;
         homeChances += homeChanceIncrease;
         homeGoalProbability *= 1 + homeExtraGoalPercentage;
@@ -147,6 +152,7 @@ public class SimulationService {
 
     }
 
+    // The whole matchday is simulated inside one transaction to avoid partial results.
     @Transactional
     public List<MatchResponse> simulateMatchday(Long leagueId,int matchday){
         leagueRepository.findById(leagueId)

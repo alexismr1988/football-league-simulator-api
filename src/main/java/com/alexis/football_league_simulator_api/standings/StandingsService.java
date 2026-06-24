@@ -15,6 +15,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Calculates league standings dynamically from played matches.
+ * Standings statistics are not persisted.
+ */
 @Service
 @RequiredArgsConstructor
 public class StandingsService {
@@ -34,11 +38,13 @@ public class StandingsService {
                 .map(team -> getStandingsByTeamId(team.getId()))
                         .collect(Collectors.toList());
 
+        // Order by points, goal difference and goals scored.
         standings.sort(Comparator.comparingInt(StandingsResponse::getPoints)
                 .thenComparing(StandingsResponse::getGoalDifference)
                 .thenComparing(StandingsResponse::getGoalsFor)
                 .reversed());
 
+        // Assign positions after applying all tie-break criteria.
         for (int i = 0; i < standings.size(); i++) {
             standings.get(i).setPosition(i + 1);
         }

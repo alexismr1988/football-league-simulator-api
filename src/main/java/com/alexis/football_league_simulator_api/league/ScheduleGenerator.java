@@ -6,6 +6,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * Generates a double round-robin schedule using the circle method.
+ * For leagues with an odd number of teams, a null entry represents a bye.
+ */
 @Component
 public class ScheduleGenerator {
 
@@ -32,6 +36,7 @@ public class ScheduleGenerator {
                 }
             }
 
+            // Keep the first team fixed and rotate the remaining teams.
             List<Team> rotatedTeams = new ArrayList<>();
             rotatedTeams.add(originalTeams.get(0));
             rotatedTeams.add(originalTeams.get(numberOfTeams - 1));
@@ -45,6 +50,7 @@ public class ScheduleGenerator {
 
         List<Match> schedule = new ArrayList<>(firstLegMatches);
 
+        // Generate the second leg by swapping home and away teams.
         for (Match firstLegMatch : firstLegMatches) {
             schedule.add(createMatch(
                     league,
