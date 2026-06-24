@@ -1,0 +1,814 @@
+{
+  "info": {
+    "_postman_id": "bc47ae9c-0fb9-46c3-a688-559d2bcd71b2",
+    "name": "Football League Simulator API",
+    "description": "Postman collection for the Football League Simulator REST API.\n\nIt includes requests for managing teams, players, coaches and leagues, generating a double round-robin schedule, simulating matchdays and retrieving dynamically calculated league standings.\n\nThe API was developed with Java 21, Spring Boot, Spring Data JPA and MySQL.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55408341",
+    "_collection_link": "https://go.postman.co/collection/55408341-bc47ae9c-0fb9-46c3-a688-559d2bcd71b2?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "Create team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Real Madrid\",\r\n  \"budget\": 100000000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/teams",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all teams",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get team by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update team",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Real Madrid CF\",\r\n  \"budget\": 120000000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete team",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Players",
+      "item": [
+        {
+          "name": "Create player",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Thibaut Courtois\",\r\n  \"age\": 33,\r\n  \"overall\": 89,\r\n  \"position\": \"GOALKEEPER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/players",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create players batch",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n  {\r\n    \"name\": \"Goalkeeper 1\",\r\n    \"age\": 29,\r\n    \"overall\": 88,\r\n    \"position\": \"GOALKEEPER\"\r\n  },\r\n  {\r\n    \"name\": \"Goalkeeper 2\",\r\n    \"age\": 23,\r\n    \"overall\": 76,\r\n    \"position\": \"GOALKEEPER\"\r\n  },\r\n  {\r\n    \"name\": \"Centre Back 1\",\r\n    \"age\": 28,\r\n    \"overall\": 86,\r\n    \"position\": \"DEFENDER\"\r\n  },\r\n  {\r\n    \"name\": \"Centre Back 2\",\r\n    \"age\": 26,\r\n    \"overall\": 84,\r\n    \"position\": \"DEFENDER\"\r\n  },\r\n  {\r\n    \"name\": \"Centre Back 3\",\r\n    \"age\": 24,\r\n    \"overall\": 80,\r\n    \"position\": \"DEFENDER\"\r\n  },\r\n  {\r\n    \"name\": \"Centre Back 4\",\r\n    \"age\": 21,\r\n    \"overall\": 75,\r\n    \"position\": \"DEFENDER\"\r\n  },\r\n  {\r\n    \"name\": \"Right Back\",\r\n    \"age\": 25,\r\n    \"overall\": 83,\r\n    \"position\": \"FULL_BACK\"\r\n  },\r\n  {\r\n    \"name\": \"Left Back\",\r\n    \"age\": 24,\r\n    \"overall\": 82,\r\n    \"position\": \"FULL_BACK\"\r\n  },\r\n  {\r\n    \"name\": \"Defensive Midfielder 1\",\r\n    \"age\": 27,\r\n    \"overall\": 85,\r\n    \"position\": \"DEFENSIVE_MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Defensive Midfielder 2\",\r\n    \"age\": 22,\r\n    \"overall\": 77,\r\n    \"position\": \"DEFENSIVE_MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Central Midfielder 1\",\r\n    \"age\": 28,\r\n    \"overall\": 87,\r\n    \"position\": \"MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Central Midfielder 2\",\r\n    \"age\": 25,\r\n    \"overall\": 84,\r\n    \"position\": \"MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Central Midfielder 3\",\r\n    \"age\": 20,\r\n    \"overall\": 74,\r\n    \"position\": \"MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Attacking Midfielder 1\",\r\n    \"age\": 26,\r\n    \"overall\": 86,\r\n    \"position\": \"ATTACKING_MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Attacking Midfielder 2\",\r\n    \"age\": 21,\r\n    \"overall\": 78,\r\n    \"position\": \"ATTACKING_MIDFIELDER\"\r\n  },\r\n  {\r\n    \"name\": \"Striker 1\",\r\n    \"age\": 27,\r\n    \"overall\": 89,\r\n    \"position\": \"STRIKER\"\r\n  },\r\n  {\r\n    \"name\": \"Striker 2\",\r\n    \"age\": 23,\r\n    \"overall\": 82,\r\n    \"position\": \"STRIKER\"\r\n  },\r\n  {\r\n    \"name\": \"Striker 3\",\r\n    \"age\": 20,\r\n    \"overall\": 75,\r\n    \"position\": \"STRIKER\"\r\n  },\r\n  {\r\n    \"name\": \"Second Striker 1\",\r\n    \"age\": 25,\r\n    \"overall\": 85,\r\n    \"position\": \"SECOND_STRIKER\"\r\n  },\r\n  {\r\n    \"name\": \"Second Striker 2\",\r\n    \"age\": 22,\r\n    \"overall\": 79,\r\n    \"position\": \"SECOND_STRIKER\"\r\n  }\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/players/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "players",
+                "batch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get player by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/players/{{player_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "players",
+                "{{player_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update player",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Thibaut Courtois\",\r\n  \"age\": 34,\r\n  \"overall\": 90,\r\n  \"position\": \"GOALKEEPER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/players/{{player_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "players",
+                "{{player_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete player",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/players/{{player_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "players",
+                "{{player_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get players by team",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/players",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "players"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Coaches",
+      "item": [
+        {
+          "name": "Create coach",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Carlo Ancelotti\",\r\n  \"coachStyle\": \"COUNTER_ATTACK\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/coaches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coaches"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all coaches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/coaches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coaches"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update coach",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Cholo Simeone\",\r\n  \"coachStyle\": \"POSSESSION\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/coaches/{{coach_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coaches",
+                "{{coach_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign coach to team",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/coach/{{coach_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "coach",
+                "{{coach_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get team coach",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/coach",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "coach"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove coach from team",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/coach",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "coach"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Matches",
+      "item": [
+        {
+          "name": "Get league matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/matches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "matches"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get played league matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/matches/played",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "matches",
+                "played"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get pending league matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/matches/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "matches",
+                "pending"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get team matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/matches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "matches"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get played team matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_1}}/matches/played",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_1}}",
+                "matches",
+                "played"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get pending team matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{team_id_2}}/matches/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teams",
+                "{{team_id_2}}",
+                "matches",
+                "pending"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Simulation",
+      "item": [
+        {
+          "name": "Simulate matchday",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/matchdays/{{matchday_number}}/simulate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "matchdays",
+                "{{matchday_number}}",
+                "simulate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Standings",
+      "item": [
+        {
+          "name": "Get league standings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/standings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "standings"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Leagues",
+      "item": [
+        {
+          "name": "Create league",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Premier League\",\r\n  \"teamIds\": [\r\n    {{team_id_1}},\r\n    {{team_id_2}},\r\n    {{team_id_3}},\r\n    {{team_id_4}}\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leagues",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all leagues",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get league by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get league teams",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/teams",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update league",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Premier League 2026\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete league",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate schedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/leagues/{{league_id}}/schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "leagues",
+                "{{league_id}}",
+                "schedule"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "team_id_1",
+      "value": "1"
+    },
+    {
+      "key": "team_id_2",
+      "value": "2"
+    },
+    {
+      "key": "team_id_3",
+      "value": "3"
+    },
+    {
+      "key": "team_id_4",
+      "value": "4"
+    },
+    {
+      "key": "player_id",
+      "value": "1"
+    },
+    {
+      "key": "coach_id",
+      "value": "1"
+    },
+    {
+      "key": "league_id",
+      "value": "1"
+    },
+    {
+      "key": "matchday_number",
+      "value": "1"
+    }
+  ]
+}
