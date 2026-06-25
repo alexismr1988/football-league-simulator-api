@@ -3,6 +3,7 @@ package com.alexis.football_league_simulator_api.simulation;
 import com.alexis.football_league_simulator_api.coach.Coach;
 import com.alexis.football_league_simulator_api.coach.CoachStyle;
 import com.alexis.football_league_simulator_api.league.LeagueRepository;
+import com.alexis.football_league_simulator_api.lineup.Lineup;
 import com.alexis.football_league_simulator_api.lineup.LineupGenerator;
 import com.alexis.football_league_simulator_api.match.Match;
 import com.alexis.football_league_simulator_api.match.MatchMapper;
@@ -27,69 +28,107 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SimulationService {
 
+    private static final String MATCH_ALREADY_SIMULATED_MESSAGE = "The match is already simulated";
+    private static final double HOME_BASE_GOAL_PROBABILITY = 0.18;
+    private static final double AWAY_BASE_GOAL_PROBABILITY = 0.15;
+    private static final int BASE_CHANCES = 12;
+    private static final int STANDARD_DEFENDERS = 4;
+    private static final int LOW_MIDFIELDERS = 3;
+    private static final int HIGH_MIDFIELDERS = 5;
+    private static final int VERY_HIGH_MIDFIELDERS = 6;
+    private static final int SINGLE_STRIKER = 1;
+    private static final int THREE_STRIKERS = 3;
+    private static final double WEAK_DEFENSE_GOAL_MULTIPLIER = 1.15;
+    private static final double STRONG_DEFENSE_GOAL_MULTIPLIER = 0.85;
+    private static final int LOW_MIDFIELD_CHANCE_PENALTY = 2;
+    private static final int HIGH_MIDFIELD_CHANCE_BONUS = 4;
+    private static final int VERY_HIGH_MIDFIELD_CHANCE_BONUS = 6;
+    private static final double SINGLE_STRIKER_GOAL_MULTIPLIER = 0.85;
+    private static final double THREE_STRIKERS_GOAL_MULTIPLIER = 1.10;
+    private static final double RATING_PERCENT_DIVISOR = 100.0;
+    private static final double GOALKEEPER_RATING_REDUCTION_FACTOR = 0.05;
+    private static final double BASE_GOALKEEPER_GOAL_REDUCTION = 0.03;
+    private static final int LINE_RATING_CHANCE_DIVISOR = 20;
+    private static final double STRIKER_RATING_GOAL_BONUS_FACTOR = 0.09;
+    private static final double BASE_STRIKER_GOAL_BONUS = 0.01;
+    private static final double DEFENSIVE_COACH_GOAL_MULTIPLIER = 0.95;
+    private static final double ATTACKING_COACH_GOAL_MULTIPLIER = 1.05;
+
     private final LineupGenerator lineupGenerator;
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
     private final LeagueRepository leagueRepository;
 
-    private Match simulateMatch(Match match){
+    private Match simulateMatch(Match match) {
 
-        if(match.isPlayed()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The match is already simulated");
+        if (match.isPlayed()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, MATCH_ALREADY_SIMULATED_MESSAGE);
+        }
 
         Team homeTeam = match.getHomeTeam();
         Team awayTeam = match.getAwayTeam();
 
         homeTeam.setLineup(lineupGenerator.generateAutoLineup(homeTeam));
         awayTeam.setLineup(lineupGenerator.generateAutoLineup(awayTeam));
+        Lineup homeLineup = homeTeam.getLineup();
+        Lineup awayLineup = awayTeam.getLineup();
 
         // Base probabilities already include a small home advantage.
-        double homeGoalProbability = 0.18;  // Probabilidad de gol por ocasión
-        double awayGoalProbability = 0.15;   // Probabilidad de gol por ocasión
-        int homeChances = 12;
-        int awayChances = 12;
+        double homeGoalProbability = HOME_BASE_GOAL_PROBABILITY;
+        double awayGoalProbability = AWAY_BASE_GOAL_PROBABILITY;
+        int homeChances = BASE_CHANCES;
+        int awayChances = BASE_CHANCES;
         Coach homeCoach = homeTeam.getCoach();
         Coach awayCoach = awayTeam.getCoach();
-        String homeFormation = homeTeam.getLineup().countLines();
-        String awayFormation = awayTeam.getLineup().countLines();
+        String homeFormation = homeLineup.countLines();
+        String awayFormation = awayLineup.countLines();
 
-        if (homeTeam.getLineup().getDefenders() < 4) awayGoalProbability *= 1.15;
-        if (homeTeam.getLineup().getDefenders() > 4) awayGoalProbability *= 0.85;
-        if (homeTeam.getLineup().getMidfielders() == 3) homeChances -= 2;
-        if (homeTeam.getLineup().getMidfielders() == 5) homeChances += 4;
-        if (homeTeam.getLineup().getMidfielders() == 6) homeChances += 6;
-        if (homeTeam.getLineup().getStrikers() == 1) homeGoalProbability *= 0.85;
-        if (homeTeam.getLineup().getStrikers() == 3) homeGoalProbability *= 1.10;
+        if (homeLineup.getDefenders() < STANDARD_DEFENDERS) awayGoalProbability *= WEAK_DEFENSE_GOAL_MULTIPLIER;
+        if (homeLineup.getDefenders() > STANDARD_DEFENDERS) awayGoalProbability *= STRONG_DEFENSE_GOAL_MULTIPLIER;
+        if (homeLineup.getMidfielders() == LOW_MIDFIELDERS) homeChances -= LOW_MIDFIELD_CHANCE_PENALTY;
+        if (homeLineup.getMidfielders() == HIGH_MIDFIELDERS) homeChances += HIGH_MIDFIELD_CHANCE_BONUS;
+        if (homeLineup.getMidfielders() == VERY_HIGH_MIDFIELDERS) homeChances += VERY_HIGH_MIDFIELD_CHANCE_BONUS;
+        if (homeLineup.getStrikers() == SINGLE_STRIKER) homeGoalProbability *= SINGLE_STRIKER_GOAL_MULTIPLIER;
+        if (homeLineup.getStrikers() == THREE_STRIKERS) homeGoalProbability *= THREE_STRIKERS_GOAL_MULTIPLIER;
 
-        if (awayTeam.getLineup().getDefenders() < 4) homeGoalProbability *= 1.15;
-        if (awayTeam.getLineup().getDefenders() > 4) homeGoalProbability *= 0.85;
-        if (awayTeam.getLineup().getMidfielders() == 3) awayChances -= 2;
-        if (awayTeam.getLineup().getMidfielders() == 5) awayChances += 4;
-        if (awayTeam.getLineup().getMidfielders() == 6) awayChances += 6;
-        if (awayTeam.getLineup().getStrikers() == 1) awayGoalProbability *= 0.85;
-        if (awayTeam.getLineup().getStrikers() == 3) awayGoalProbability *= 1.10;
+        if (awayLineup.getDefenders() < STANDARD_DEFENDERS) homeGoalProbability *= WEAK_DEFENSE_GOAL_MULTIPLIER;
+        if (awayLineup.getDefenders() > STANDARD_DEFENDERS) homeGoalProbability *= STRONG_DEFENSE_GOAL_MULTIPLIER;
+        if (awayLineup.getMidfielders() == LOW_MIDFIELDERS) awayChances -= LOW_MIDFIELD_CHANCE_PENALTY;
+        if (awayLineup.getMidfielders() == HIGH_MIDFIELDERS) awayChances += HIGH_MIDFIELD_CHANCE_BONUS;
+        if (awayLineup.getMidfielders() == VERY_HIGH_MIDFIELDERS) awayChances += VERY_HIGH_MIDFIELD_CHANCE_BONUS;
+        if (awayLineup.getStrikers() == SINGLE_STRIKER) awayGoalProbability *= SINGLE_STRIKER_GOAL_MULTIPLIER;
+        if (awayLineup.getStrikers() == THREE_STRIKERS) awayGoalProbability *= THREE_STRIKERS_GOAL_MULTIPLIER;
 
         // Medias del equipo local
-        int homeGoalkeeperAverage = homeTeam.getLineup().averageByPositions(Position.GOALKEEPER);
-        int homeDefendersAverage = homeTeam.getLineup().averageByPositions(Position.DEFENDER, Position.FULL_BACK);
-        int homeMidfieldersAverage = homeTeam.getLineup().averageByPositions(Position.DEFENSIVE_MIDFIELDER, Position.MIDFIELDER, Position.ATTACKING_MIDFIELDER);
-        int homeStrikersAverage = homeTeam.getLineup().averageByPositions(Position.STRIKER, Position.SECOND_STRIKER);
+        int homeGoalkeeperAverage = homeLineup.averageByPositions(Position.GOALKEEPER);
+        int homeDefendersAverage = homeLineup.averageByPositions(Position.DEFENDER, Position.FULL_BACK);
+        int homeMidfieldersAverage = homeLineup.averageByPositions(Position.DEFENSIVE_MIDFIELDER, Position.MIDFIELDER, Position.ATTACKING_MIDFIELDER);
+        int homeStrikersAverage = homeLineup.averageByPositions(Position.STRIKER, Position.SECOND_STRIKER);
 
         // Medias del equipo visitante
-        int awayGoalkeeperAverage = awayTeam.getLineup().averageByPositions(Position.GOALKEEPER);
-        int awayDefendersAverage = awayTeam.getLineup().averageByPositions(Position.DEFENDER, Position.FULL_BACK);
-        int awayMidfieldersAverage = awayTeam.getLineup().averageByPositions(Position.DEFENSIVE_MIDFIELDER, Position.MIDFIELDER, Position.ATTACKING_MIDFIELDER);
-        int awayStrikersAverage = awayTeam.getLineup().averageByPositions(Position.STRIKER, Position.SECOND_STRIKER);
+        int awayGoalkeeperAverage = awayLineup.averageByPositions(Position.GOALKEEPER);
+        int awayDefendersAverage = awayLineup.averageByPositions(Position.DEFENDER, Position.FULL_BACK);
+        int awayMidfieldersAverage = awayLineup.averageByPositions(Position.DEFENSIVE_MIDFIELDER, Position.MIDFIELDER, Position.ATTACKING_MIDFIELDER);
+        int awayStrikersAverage = awayLineup.averageByPositions(Position.STRIKER, Position.SECOND_STRIKER);
 
         // Adjust chances and scoring probabilities according to each positional line.
-        double homeGoalReduction = (homeGoalkeeperAverage / 100.0) * 0.05 + 0.03;
-        int awayChancePenalty = homeDefendersAverage / 20;
-        int homeChanceIncrease = homeMidfieldersAverage / 20;
-        double homeExtraGoalPercentage = (homeStrikersAverage / 100.0) * 0.09 + 0.01;
+        double homeGoalReduction = (homeGoalkeeperAverage / RATING_PERCENT_DIVISOR)
+                * GOALKEEPER_RATING_REDUCTION_FACTOR
+                + BASE_GOALKEEPER_GOAL_REDUCTION;
+        int awayChancePenalty = homeDefendersAverage / LINE_RATING_CHANCE_DIVISOR;
+        int homeChanceIncrease = homeMidfieldersAverage / LINE_RATING_CHANCE_DIVISOR;
+        double homeExtraGoalPercentage = (homeStrikersAverage / RATING_PERCENT_DIVISOR)
+                * STRIKER_RATING_GOAL_BONUS_FACTOR
+                + BASE_STRIKER_GOAL_BONUS;
 
-        double awayGoalReduction = (awayGoalkeeperAverage / 100.0) * 0.05 + 0.03;
-        int homeChancePenalty = awayDefendersAverage / 20;
-        int awayChanceIncrease = awayMidfieldersAverage / 20;
-        double awayExtraGoalPercentage = (awayStrikersAverage / 100.0) * 0.09 + 0.01;
+        double awayGoalReduction = (awayGoalkeeperAverage / RATING_PERCENT_DIVISOR)
+                * GOALKEEPER_RATING_REDUCTION_FACTOR
+                + BASE_GOALKEEPER_GOAL_REDUCTION;
+        int homeChancePenalty = awayDefendersAverage / LINE_RATING_CHANCE_DIVISOR;
+        int awayChanceIncrease = awayMidfieldersAverage / LINE_RATING_CHANCE_DIVISOR;
+        double awayExtraGoalPercentage = (awayStrikersAverage / RATING_PERCENT_DIVISOR)
+                * STRIKER_RATING_GOAL_BONUS_FACTOR
+                + BASE_STRIKER_GOAL_BONUS;
 
         // Each chance is evaluated independently using the final scoring probability.
         awayGoalProbability *= 1 - homeGoalReduction;
@@ -107,8 +146,8 @@ public class SimulationService {
 
             if (homeCoachStyle.getFormations().contains(homeFormation)) {
                 switch (homeCoachStyle) {
-                    case DEFENSIVE -> awayGoalProbability *= 0.95;
-                    case OFFENSIVE, POSSESSION, COUNTER_ATTACK -> homeGoalProbability *= 1.05;
+                    case DEFENSIVE -> awayGoalProbability *= DEFENSIVE_COACH_GOAL_MULTIPLIER;
+                    case OFFENSIVE, POSSESSION, COUNTER_ATTACK -> homeGoalProbability *= ATTACKING_COACH_GOAL_MULTIPLIER;
                 }
             }
         }
@@ -118,8 +157,8 @@ public class SimulationService {
 
             if (awayCoachStyle.getFormations().contains(awayFormation)) {
                 switch (awayCoachStyle) {
-                    case DEFENSIVE -> homeGoalProbability *= 0.95;
-                    case OFFENSIVE, POSSESSION, COUNTER_ATTACK -> awayGoalProbability *= 1.05;
+                    case DEFENSIVE -> homeGoalProbability *= DEFENSIVE_COACH_GOAL_MULTIPLIER;
+                    case OFFENSIVE, POSSESSION, COUNTER_ATTACK -> awayGoalProbability *= ATTACKING_COACH_GOAL_MULTIPLIER;
                 }
             }
         }
@@ -146,10 +185,7 @@ public class SimulationService {
         match.setAwayGoals(awayGoals);
         match.setPlayed(true);
 
-        Match savedMatch = matchRepository.save(match);
-
-        return savedMatch;
-
+        return matchRepository.save(match);
     }
 
     // The whole matchday is simulated inside one transaction to avoid partial results.
