@@ -3,6 +3,7 @@ package com.alexis.football_league_simulator_api.coach;
 import com.alexis.football_league_simulator_api.coach.dto.CoachResponse;
 import com.alexis.football_league_simulator_api.coach.dto.CreateCoachRequest;
 import com.alexis.football_league_simulator_api.coach.dto.UpdateCoachRequest;
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.team.Team;
 import com.alexis.football_league_simulator_api.team.TeamRepository;
 import jakarta.transaction.Transactional;
@@ -33,11 +34,11 @@ public class CoachService {
     @Transactional
     public CoachResponse assignCoachToTeam(Long coachId, Long teamId) {
         Coach coach = coachRepository.findById(coachId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Coach not found with id: " + coachId));
+                .orElseThrow(() -> new ResourceNotFoundException("Coach", coachId));
 
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
 
         team.setCoach(coach);
@@ -51,11 +52,11 @@ public class CoachService {
     public CoachResponse getCoachByTeamId(Long teamId){
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
         Coach coach = coachRepository.findByTeamId(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Coach not found with in team: " + team.getName())
+                        new ResourceNotFoundException("Coach", teamId)
                 );
 
         return  coachMapper.toResponse(coach);
@@ -64,10 +65,7 @@ public class CoachService {
     public void unassignCoachFromTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Team not found with id: " + teamId
-                        )
+                        new ResourceNotFoundException("Team", teamId)
                 );
 
         Coach coach = team.getCoach();
@@ -81,7 +79,7 @@ public class CoachService {
 
     public CoachResponse updateCoach(Long id, UpdateCoachRequest updateCoachRequest){
         Coach coach = coachRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Coach not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Coach", id));
 
         coachMapper.updateEntity(updateCoachRequest, coach);
         Coach updatedCoach = coachRepository.save(coach);

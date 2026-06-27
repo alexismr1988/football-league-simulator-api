@@ -1,5 +1,6 @@
 package com.alexis.football_league_simulator_api.standings;
 
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.league.League;
 import com.alexis.football_league_simulator_api.league.LeagueRepository;
 import com.alexis.football_league_simulator_api.match.Match;
@@ -31,7 +32,7 @@ public class StandingsService {
     public List<StandingsResponse> generateStandingsByLeagueId(Long leagueId){
         League league = leagueRepository.findById(leagueId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + leagueId)
+                        new ResourceNotFoundException("League", leagueId)
                 );
 
         List<StandingsResponse> standings = league.getTeams().stream()
@@ -58,7 +59,7 @@ public class StandingsService {
     private StandingsResponse getStandingsByTeamId(Long teamId){
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
 
         List<Match> playedMatches= matchRepository.findByHomeTeamIdAndPlayedTrueOrAwayTeamIdAndPlayedTrue(teamId, teamId);

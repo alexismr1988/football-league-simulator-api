@@ -1,5 +1,6 @@
 package com.alexis.football_league_simulator_api.team;
 
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.team.dto.CreateTeamRequest;
 import com.alexis.football_league_simulator_api.team.dto.TeamResponse;
 import com.alexis.football_league_simulator_api.team.dto.UpdateTeamRequest;
@@ -28,7 +29,7 @@ public class TeamService {
     public TeamResponse updateTeam(Long id, UpdateTeamRequest updateTeamRequest) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + id)
+                        new ResourceNotFoundException("Team", id)
                 );
 
         teamMapper.updateEntity(updateTeamRequest, team);
@@ -41,7 +42,7 @@ public class TeamService {
     public TeamResponse getTeamById(Long id) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + id)
+                        new ResourceNotFoundException("Team", id)
                 );
 
         return teamMapper.toResponse(team);
@@ -50,7 +51,7 @@ public class TeamService {
     public void deleteTeam(Long id) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + id)
+                        new ResourceNotFoundException("Team", id)
                 );
 
         teamRepository.delete(team);

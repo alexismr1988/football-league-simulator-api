@@ -1,5 +1,6 @@
 package com.alexis.football_league_simulator_api.lineup;
 
+import com.alexis.football_league_simulator_api.exception.InvalidLineupException;
 import com.alexis.football_league_simulator_api.player.Player;
 import com.alexis.football_league_simulator_api.player.Position;
 import lombok.Getter;
@@ -14,7 +15,7 @@ public class Lineup {
     private Set<Player> players = new HashSet<>();
 
     public void addPlayer(Player player){
-        if(players.size() >= 11) throw new IllegalArgumentException("Lineup already have 11 players.");
+        if(players.size() >= 11) throw new InvalidLineupException("The team cannot have more than 11 players.");
 
         players.add(player);
     }
@@ -53,17 +54,17 @@ public class Lineup {
         int midfielders = getMidfielders();
         int strikers = getStrikers();
 
-        if(goalkeepers != 1) throw new IllegalStateException("The lineup must have only one goalkeeper");
-        if(defenders < 3 || defenders > 5) throw new IllegalStateException("The lineup must have between 3 and 5 defenders");
-        if(midfielders < 3 || midfielders > 6) throw new IllegalStateException("The lineup must have between 3 and 6 midfielders");
-        if(strikers < 1 || strikers > 3) throw new IllegalStateException("The lineup must have between 1 and 3 strikers");
+        if(goalkeepers != 1) throw new InvalidLineupException("The lineup must have only one goalkeeper");
+        if(defenders < 3 || defenders > 5) throw new InvalidLineupException("The lineup must have between 3 and 5 defenders");
+        if(midfielders < 3 || midfielders > 6) throw new InvalidLineupException("The lineup must have between 3 and 6 midfielders");
+        if(strikers < 1 || strikers > 3) throw new InvalidLineupException("The lineup must have between 1 and 3 strikers");
 
         return true;
 
     }
 
     public boolean validateSize(){
-        if(players.size() != 11) throw new IllegalArgumentException("The team does not have a valid lineup of 11 players.");
+        if(players.size() != 11) throw new InvalidLineupException("The team does not have a valid lineup of 11 players.");
 
         return true;
     }

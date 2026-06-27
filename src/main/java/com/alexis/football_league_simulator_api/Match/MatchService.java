@@ -1,5 +1,6 @@
 package com.alexis.football_league_simulator_api.match;
 
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.league.LeagueRepository;
 import com.alexis.football_league_simulator_api.match.dto.MatchResponse;
 import com.alexis.football_league_simulator_api.team.TeamRepository;
@@ -30,7 +31,7 @@ public class MatchService {
     public List<MatchResponse> getMatchesByLeagueId(Long leagueId) {
         leagueRepository.findById(leagueId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + leagueId)
+                        new ResourceNotFoundException("League", leagueId)
                 );
 
         return matchRepository.findByLeagueId(leagueId).stream()
@@ -41,7 +42,7 @@ public class MatchService {
     public List<MatchResponse> getPlayedMatchesByLeagueId(Long leagueId) {
         leagueRepository.findById(leagueId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + leagueId)
+                        new ResourceNotFoundException("League", leagueId)
                 );
 
         return matchRepository.findByLeagueIdAndPlayedTrue(leagueId).stream()
@@ -52,7 +53,7 @@ public class MatchService {
     public List<MatchResponse> getNonPlayedMatchesByLeagueId(Long leagueId) {
         leagueRepository.findById(leagueId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + leagueId)
+                        new ResourceNotFoundException("League", leagueId)
                 );
 
         return matchRepository.findByLeagueIdAndPlayedFalse(leagueId).stream()
@@ -63,7 +64,7 @@ public class MatchService {
     public List<MatchResponse> getMatchesByTeamId(Long teamId) {
         teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
         return matchRepository.findByHomeTeamIdOrAwayTeamId(teamId, teamId).stream()
                 .map(matchMapper::toResponse)
@@ -75,7 +76,7 @@ public class MatchService {
     public List<MatchResponse> getPlayedMatchesByTeamId(Long teamId) {
         teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
         return matchRepository.findByHomeTeamIdAndPlayedTrueOrAwayTeamIdAndPlayedTrue(teamId, teamId).stream()
                 .map(matchMapper::toResponse)
@@ -85,7 +86,7 @@ public class MatchService {
     public List<MatchResponse> getNonPlayedMatchesByTeamId(Long teamId) {
         teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
         return matchRepository.findByHomeTeamIdAndPlayedFalseOrAwayTeamIdAndPlayedFalse(teamId, teamId).stream()
                 .map(matchMapper::toResponse)

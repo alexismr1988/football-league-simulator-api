@@ -1,5 +1,6 @@
 package com.alexis.football_league_simulator_api.player;
 
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.player.dto.CreatePlayerRequest;
 import com.alexis.football_league_simulator_api.player.dto.PlayerResponse;
 import com.alexis.football_league_simulator_api.player.dto.UpdatePlayerRequest;
@@ -24,10 +25,7 @@ public class PlayerService {
     public PlayerResponse createPlayer(Long teamId, CreatePlayerRequest createPlayerRequest) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Team not found with id: " + teamId
-                        )
+                        new ResourceNotFoundException("Team", teamId)
                 );
 
         Player player = playerMapper.toEntity(createPlayerRequest);
@@ -43,7 +41,7 @@ public class PlayerService {
     public PlayerResponse updatePlayer(Long id, UpdatePlayerRequest updatePlayerRequest){
         Player player = playerRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Player not found with id: " + id)
+                        new ResourceNotFoundException("Player", id)
                 );
         playerMapper.updateEntity(updatePlayerRequest, player);
         Player updatedPlayer = playerRepository.save(player);
@@ -53,7 +51,7 @@ public class PlayerService {
     public void deletePlayer(Long id){
         Player player = playerRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Player not found with id: " + id)
+                        new ResourceNotFoundException("Player", id)
                 );
 
         playerRepository.delete(player);
@@ -69,7 +67,7 @@ public class PlayerService {
     public PlayerResponse getPlayerById(Long id){
         Player player = playerRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Player not found with id: " + id)
+                        new ResourceNotFoundException("Player", id)
                 );
         return playerMapper.toResponse(player);
     }
@@ -77,7 +75,7 @@ public class PlayerService {
     public List<PlayerResponse> getPlayersByTeamId(Long teamId){
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Team not found with id: " + teamId)
+                        new ResourceNotFoundException("Team", teamId)
                 );
         return playerRepository.findByTeamId(teamId).stream()
                 .map(playerMapper::toResponse)
@@ -87,10 +85,7 @@ public class PlayerService {
     public List<PlayerResponse> createPlayers(Long teamId, List<CreatePlayerRequest> requests) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Team not found with id: " + teamId
-                        )
+                        new ResourceNotFoundException("Team", teamId)
                 );
 
         List<Player> players = requests.stream()

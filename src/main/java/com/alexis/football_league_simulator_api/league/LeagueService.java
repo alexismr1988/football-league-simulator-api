@@ -1,5 +1,7 @@
 package com.alexis.football_league_simulator_api.league;
 
+import com.alexis.football_league_simulator_api.exception.ConflictException;
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.league.dto.CreateLeagueRequest;
 import com.alexis.football_league_simulator_api.league.dto.LeagueResponse;
 import com.alexis.football_league_simulator_api.league.dto.UpdateLeagueRequest;
@@ -54,10 +56,7 @@ public class LeagueService {
                 .anyMatch(team -> team.getLeague() != null);
 
         if (teamAlreadyAssigned) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "One or more teams already belong to a league"
-            );
+            throw new ConflictException("One or more teams are already assigned to a league");
         }
 
         League league = leagueMapper.toEntity(createLeagueRequest, teams);
@@ -78,7 +77,7 @@ public class LeagueService {
     public LeagueResponse getLeagueById(Long id){
         League league = leagueRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + id)
+                        new ResourceNotFoundException("League", id)
                 );
 
         return leagueMapper.toResponse(league);
@@ -87,7 +86,7 @@ public class LeagueService {
     public List<TeamResponse> getTeamsByLeagueId(Long id){
         League league = leagueRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + id)
+                        new ResourceNotFoundException("League", id)
                 );
 
         return league.getTeams().stream()
@@ -98,7 +97,7 @@ public class LeagueService {
     public LeagueResponse updateLeagueName(Long id, UpdateLeagueRequest updateLeagueRequest){
         League league = leagueRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + id)
+                        new ResourceNotFoundException("League", id)
                 );
         leagueMapper.updateEntity(updateLeagueRequest, league);
 
@@ -111,7 +110,7 @@ public class LeagueService {
     public void deleteLeague(Long id){
         League league = leagueRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + id)
+                        new ResourceNotFoundException("League", id)
                 );
         league.getTeams().forEach(team -> {
             team.setLeague(null);
@@ -125,10 +124,10 @@ public class LeagueService {
     public List<MatchResponse> generateSchedule(Long leagueId){
         League league = leagueRepository.findById(leagueId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + leagueId)
+                        new ResourceNotFoundException("League", leagueId)
                 );
 
-        if(matchRepository.existsByLeagueId(leagueId)) throw new ResponseStatusException(HttpStatus.CONFLICT,"Schedule already exists");
+        if(matchRepository.existsByLeagueId(leagueId)) throw new ConflictException("Schedule already exists");
 
         List<Match> schedule = scheduleGenerator.generateSchedule(league);
 

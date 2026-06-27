@@ -2,6 +2,8 @@ package com.alexis.football_league_simulator_api.simulation;
 
 import com.alexis.football_league_simulator_api.coach.Coach;
 import com.alexis.football_league_simulator_api.coach.CoachStyle;
+import com.alexis.football_league_simulator_api.exception.ConflictException;
+import com.alexis.football_league_simulator_api.exception.ResourceNotFoundException;
 import com.alexis.football_league_simulator_api.league.LeagueRepository;
 import com.alexis.football_league_simulator_api.lineup.Lineup;
 import com.alexis.football_league_simulator_api.lineup.LineupGenerator;
@@ -193,19 +195,16 @@ public class SimulationService {
     public List<MatchResponse> simulateMatchday(Long leagueId,int matchday){
         leagueRepository.findById(leagueId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"League not found with id: " + leagueId)
+                        new ResourceNotFoundException("League", leagueId)
                 );
 
         List<Match> matches = matchRepository.findByLeagueIdAndMatchdayNumber(leagueId, matchday);
         if (matches.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "No matches found for league id: " + leagueId + " and matchday: " + matchday
-            );
+            throw new ResourceNotFoundException("Matchday", matchday);
         }
 
         matches.forEach(match -> {
-            if(match.isPlayed()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Matchday is already simulated");
+            if(match.isPlayed()) throw new ConflictException(MATCH_ALREADY_SIMULATED_MESSAGE);
         });
 
         List<Match> simulatedMatches = new ArrayList<>();

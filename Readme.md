@@ -15,6 +15,7 @@ This first functional version includes the core features required to create and 
 - Schedule generation
 - Matchday simulation
 - Standings
+- Centralized exception handling with consistent API error responses
 
 ## Technologies
 Java 21, Spring Boot, JPA, MySQL, Maven, Validation, Lombok.
@@ -118,6 +119,28 @@ GET /leagues/{leagueId}/standings
 A Postman collection containing the main API requests is available in the repository.
 
 [Open the Postman collection](postman/Football-League-Simulator.postman_collection.json)
+
+## Error handling
+
+The API uses centralized exception handling to provide consistent error responses.
+
+Handled cases include:
+
+- `400 Bad Request` for DTO validation errors
+- `404 Not Found` for missing resources
+- `409 Conflict` for invalid operations or business-rule conflicts
+
+Example:
+
+```json
+{
+  "timestamp": "2026-06-27T18:30:00Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "League with ID 99 not found.",
+  "path": "/leagues/99",
+  "fieldErrors": {}
+}
 
 ## Future improvements
 Security, tests, AI-generated match reports, frontend.
