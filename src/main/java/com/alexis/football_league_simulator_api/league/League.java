@@ -34,4 +34,13 @@ public class League {
         this.teams = teams;
     }
 
+    public void add(Team team) {
+        if (teams.size() >= 22) {
+            throw new IllegalArgumentException(
+                    "A league cannot have more than 22 teams"
+            );
+        }
+
+        teams.add(team);
+    }
 }
