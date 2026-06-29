@@ -141,6 +141,26 @@ Example:
   "path": "/leagues/99",
   "fieldErrors": {}
 }
+```
+
+## Testing
+
+Unit tests are implemented with JUnit 5.
+
+Current coverage includes:
+
+- Automatic lineup generation and invalid lineup scenarios.
+- Double round-robin schedule generation for even and odd numbers of teams.
+
+Run tests with:
+
+```bash
+mvn test
+
+```
 
 ## Future improvements
 Security, tests, AI-generated match reports, frontend.
+
+
+
