@@ -18,7 +18,7 @@ This first functional version includes the core features required to create and 
 - Centralized exception handling with consistent API error responses
 
 ## Technologies
-Java 21, Spring Boot, JPA, MySQL, Maven, Validation, Lombok.
+Java 21, Spring Boot, Spring Data JPA, MySQL, Maven, Jakarta Validation, Lombok, JUnit 5 and Mockito.
 
 ## Project status
 First functional backend version.
@@ -145,14 +145,21 @@ Example:
 
 ## Testing
 
-Unit tests are implemented with JUnit 5.
+Unit tests are implemented with JUnit 5 and Mockito.
 
-Current coverage includes:
+Current tests include:
 
-- Automatic lineup generation and invalid lineup scenarios.
-- Double round-robin schedule generation for even and odd numbers of teams.
+Automatic lineup generation.
+Invalid lineup scenarios.
+Double round-robin schedule generation for even and odd numbers of teams.
+Matchday simulation service.
+Missing league handling.
+Already simulated matchday handling.
+Successful matchday simulation using mocked dependencies.
 
-Run tests with:
+Run all tests with:
+
+mvn test
 
 ```bash
 mvn test
@@ -160,7 +167,7 @@ mvn test
 ```
 
 ## Future improvements
-Security, tests, AI-generated match reports, frontend.
+Spring Security, integration tests, Docker, AI-generated match reports and a frontend application.
 
 
 
